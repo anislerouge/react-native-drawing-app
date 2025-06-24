@@ -20,16 +20,18 @@ export function DrawingCanvas({ color }: DrawingCanvasProps) {
     onMoveShouldSetPanResponder: () => true,
     onPanResponderGrant: (event) => {
       const { locationX, locationY } = event.nativeEvent;
-      currentPath.current = { path: `M ${locationX} ${locationY}`, color: color };
+      currentPath.current = { path: `M ${locationX} ${locationY}`, color };
+      // add the new path so it can be updated while drawing
+      setPaths((prev) => [...prev, currentPath.current]);
     },
     onPanResponderMove: (event) => {
       const { locationX, locationY } = event.nativeEvent;
       currentPath.current.path += ` L ${locationX} ${locationY}`;
-      setPaths([...paths.slice(0, -1), currentPath.current]);
+      setPaths((prev) => [...prev.slice(0, -1), currentPath.current]);
     },
     onPanResponderRelease: () => {
-      setPaths([...paths, currentPath.current]);
-      currentPath.current = { path: '', color: color };
+      // the path was already added during grant, just reset for the next stroke
+      currentPath.current = { path: '', color };
     },
   });
 
